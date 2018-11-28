@@ -5,13 +5,15 @@ import java.util.ArrayList;
 public class Vertex extends MazeSquare {
   int id;
   ArrayList<Edge> outEdges;
-  static final int SIZE = 30;
+  static final int SIZE = 20;
+  boolean visited;
 
   // creates a new Vertex object
   Vertex(int i, int j, int uniqueKey) {
     super(i, j, Color.GRAY);
     this.id = uniqueKey;
     this.outEdges = new ArrayList<Edge>();
+    this.visited = false;
   }
 
   // EFFECT: all of the appropriate edges to the outEdges list
@@ -30,5 +32,10 @@ public class Vertex extends MazeSquare {
     if (j != vertices.get(0).size() - 1) {
       this.outEdges.add(new Edge(this, vertices.get(i).get(j + 1)));
     }
+  }
+  
+  @Override
+  public String toString() {
+    return this.posn.toString();
   }
 }

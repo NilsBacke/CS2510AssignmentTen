@@ -5,6 +5,9 @@ import javalib.impworld.World;
 import javalib.impworld.WorldScene;
 import javalib.worldimages.LineImage;
 import javalib.worldimages.Posn;
+import javalib.worldimages.RectangleImage;
+import javalib.worldimages.TextImage;
+import javalib.worldimages.WorldEnd;
 import tester.Tester;
 
 // represents the World class for the Maze game
@@ -28,14 +31,48 @@ public class MazeWorld extends World {
   @Override
   public WorldScene makeScene() {
     WorldScene scene = this.getEmptyScene();
-    this.maze.render(scene);
-    this.player.addToScene(scene);
+    this.maze.render(scene, player); // also draws player
     return scene;
+  }
+  
+  @Override 
+  public void onTick() {
+    Vertex currentPlayerSquare = this.maze.vertices.get(player.posn.x).get(player.posn.y);
+    currentPlayerSquare.color = Color.YELLOW;
+    currentPlayerSquare.visited = true;
   }
 
   // moves the Player when the player presses an arrow key
   public void onKeyEvent(String ke) {
-    player.movePlayer(ke, this.maze.walls);
+    if (ke.equals("r")) {
+      maze = new Maze(WIDTH, HEIGHT);
+      player = new Player(0, 0);
+    }
+    else {
+      player.movePlayer(ke, this.maze.walls);
+    }
+  }
+
+  // trigger world end
+  public WorldEnd worldEnds() {
+    // check if user wins
+    if (player.completed()) {
+      // user wins
+      return new WorldEnd(true, this.lastScene("NICE JOB"));
+    }
+    else {
+      // game isn't over yet
+      return new WorldEnd(false, this.makeScene());
+    }
+  }
+
+  // produces the last image of this world by adding a box and text to the image
+  public WorldScene lastScene(String s) {
+    WorldScene scene = this.makeScene();
+    scene.placeImageXY(new RectangleImage(80, 30, "solid", Color.white), WINDOW_WIDTH / 2,
+        WINDOW_HEIGHT / 2);
+    scene.placeImageXY(new TextImage(s, Color.red), WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
+    return scene;
   }
 }
 
@@ -208,6 +245,6 @@ class ExamplesMaze {
   public static void main(String[] argv) {
     // run the game
     MazeWorld w = new MazeWorld();
-    w.bigBang(MazeWorld.WINDOW_WIDTH, MazeWorld.WINDOW_HEIGHT, 0.3);
+    w.bigBang(MazeWorld.WINDOW_WIDTH, MazeWorld.WINDOW_HEIGHT, 0.05);
   }
 }

@@ -73,4 +73,10 @@ public class Edge {
   public int hashCode() {
     return this.from.posn.x * MazeWorld.WIDTH + this.from.posn.y;
   }
+  
+  // returns this object in string form
+  @Override
+  public String toString() {
+    return this.from.toString() + " " + this.to.toString() + " Weight: " + this.weight;
+  }
 }

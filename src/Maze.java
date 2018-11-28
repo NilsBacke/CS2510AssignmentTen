@@ -154,12 +154,14 @@ public class Maze {
   }
 
   // EFFECT: add all of the vertices' and edges' images to the given WorldScene
-  void render(WorldScene scene) {
+  void render(WorldScene scene, Player player) {
     for (ArrayList<Vertex> list : vertices) {
       for (Vertex v : list) {
         v.addToScene(scene);
       }
     }
+    
+    player.addToScene(scene);
 
     for (Edge e : this.walls) {
       e.addToScene(scene);
