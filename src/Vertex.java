@@ -34,6 +34,26 @@ public class Vertex extends MazeSquare {
     }
   }
   
+  void setVisited() {
+    this.visited = true;
+    this.color = new Color(50, 50, 170);
+  }
+  
+  // compares the two posns
+  @Override
+  public boolean equals(Object o) {
+    if (o instanceof Vertex) {
+      return this.posn.equals(((Vertex) o).posn);
+    }
+    return false;
+  }
+  
+  // returns the unique ID
+  @Override
+  public int hashCode() {
+    return this.id;
+  }
+  
   @Override
   public String toString() {
     return this.posn.toString();

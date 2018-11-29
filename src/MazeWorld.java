@@ -24,7 +24,7 @@ public class MazeWorld extends World {
   // creates a new MazeWorld object
   MazeWorld() {
     maze = new Maze(WIDTH, HEIGHT);
-    player = new Player(0, 0);
+    maze.DFSprep();
   }
 
   // draws all of the elements of the maze
@@ -37,9 +37,16 @@ public class MazeWorld extends World {
   
   @Override 
   public void onTick() {
-    Vertex currentPlayerSquare = this.maze.vertices.get(player.posn.x).get(player.posn.y);
-    currentPlayerSquare.color = Color.YELLOW;
-    currentPlayerSquare.visited = true;
+    if (player != null) {
+      Vertex currentPlayerSquare = this.maze.vertices.get(player.posn.x).get(player.posn.y);
+      currentPlayerSquare.color = new Color(50, 50, 170);
+      currentPlayerSquare.visited = true;
+    } else {
+      if (maze.workListDFS.size() > 0) {
+        maze.DFS();
+      }
+      
+    }
   }
 
   // moves the Player when the player presses an arrow key
@@ -47,8 +54,10 @@ public class MazeWorld extends World {
     if (ke.equals("r")) {
       maze = new Maze(WIDTH, HEIGHT);
       player = new Player(0, 0);
+    } else if (ke.equals("p") && player == null) {
+      player = new Player(0, 0);
     }
-    else {
+    else if (player != null) {
       player.movePlayer(ke, this.maze.walls);
     }
   }
@@ -56,8 +65,10 @@ public class MazeWorld extends World {
   // trigger world end
   public WorldEnd worldEnds() {
     // check if user wins
-    if (player.completed()) {
+    if (player != null && player.completed()) {
       // user wins
+      return new WorldEnd(true, this.lastScene("NICE JOB"));
+    } else if (maze.isSolved()) {
       return new WorldEnd(true, this.lastScene("NICE JOB"));
     }
     else {
@@ -245,6 +256,6 @@ class ExamplesMaze {
   public static void main(String[] argv) {
     // run the game
     MazeWorld w = new MazeWorld();
-    w.bigBang(MazeWorld.WINDOW_WIDTH, MazeWorld.WINDOW_HEIGHT, 0.05);
+    w.bigBang(MazeWorld.WINDOW_WIDTH, MazeWorld.WINDOW_HEIGHT, 0.025);
   }
 }

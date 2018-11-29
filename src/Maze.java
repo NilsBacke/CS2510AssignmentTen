@@ -2,6 +2,8 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Stack;
+
 import javalib.impworld.WorldScene;
 
 // represents a Maze object
@@ -9,6 +11,10 @@ public class Maze {
   ArrayList<ArrayList<Vertex>> vertices; // the squares of the maze
   ArrayList<Edge> edges; // all possible edges
   ArrayList<Edge> walls; // the walls of the maze
+
+  // for solving algorithms
+  HashMap<Integer, Edge> cameFromEdgeDFS;
+  Stack<Vertex> workListDFS;
 
   // constructs a new Maze object
   Maze(int width, int height) {
@@ -153,6 +159,41 @@ public class Maze {
     }
   }
 
+  void DFSprep() {
+    cameFromEdgeDFS = new HashMap<Integer, Edge>();
+    workListDFS = new Stack<Vertex>();
+
+    for (ArrayList<Vertex> list : vertices) {
+      for (Vertex v : list) {
+        v.visited = false;
+      }
+    }
+
+    workListDFS.push(vertices.get(0).get(0));
+  }
+
+  void DFS() {
+    System.out.println("While");
+    Vertex next = workListDFS.pop();
+    if (next.posn.x == MazeWorld.WIDTH - 1 && next.posn.y == MazeWorld.HEIGHT - 1) {
+      // reconstruct
+      next.setVisited();
+    }
+    else if (!next.visited) {
+      next.setVisited();
+      for (Edge e : next.outEdges) {
+        if (!e.from.equals(next) && !e.from.visited) {
+          workListDFS.push(e.from);
+          cameFromEdgeDFS.put(next.id, e);
+        }
+        else if (!e.to.equals(next) && !e.to.visited) {
+          workListDFS.push(e.to);
+          cameFromEdgeDFS.put(next.id, e);
+        }
+      }
+    }
+  }
+
   // EFFECT: add all of the vertices' and edges' images to the given WorldScene
   void render(WorldScene scene, Player player) {
     for (ArrayList<Vertex> list : vertices) {
@@ -160,11 +201,18 @@ public class Maze {
         v.addToScene(scene);
       }
     }
-    
-    player.addToScene(scene);
+
+    if (player != null) {
+      player.addToScene(scene);
+    }
 
     for (Edge e : this.walls) {
       e.addToScene(scene);
     }
+  }
+  
+  // returns true if this maze is solved
+  boolean isSolved() {
+    return this.vertices.get(MazeWorld.WIDTH - 1).get(MazeWorld.HEIGHT - 1).visited;
   }
 }
