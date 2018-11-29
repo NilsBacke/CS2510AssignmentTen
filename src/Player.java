@@ -72,7 +72,6 @@ public class Player extends MazeSquare {
         if (e.from.posn.x == this.posn.x && e.to.posn.x == this.posn.x
             && ((e.from.posn.y == start && e.to.posn.y == end)
                 || (e.to.posn.y == start && e.from.posn.y == end))) {
-          System.out.println("vertical: " + e.toString());
           return false;
         }
       }
@@ -82,7 +81,6 @@ public class Player extends MazeSquare {
         if (e.from.posn.y == this.posn.y && e.to.posn.y == this.posn.y
             && ((e.from.posn.x == start && e.to.posn.x == end)
                 || (e.to.posn.x == start && e.from.posn.x == end))) {
-          System.out.println("horizontal: " + e.toString());
           return false;
         }
       }

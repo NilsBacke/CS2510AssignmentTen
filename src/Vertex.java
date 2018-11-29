@@ -7,6 +7,7 @@ public class Vertex extends MazeSquare {
   ArrayList<Edge> outEdges;
   static final int SIZE = 20;
   boolean visited;
+  boolean onPath;
 
   // creates a new Vertex object
   Vertex(int i, int j, int uniqueKey) {
@@ -14,6 +15,7 @@ public class Vertex extends MazeSquare {
     this.id = uniqueKey;
     this.outEdges = new ArrayList<Edge>();
     this.visited = false;
+    this.onPath = false;
   }
 
   // EFFECT: all of the appropriate edges to the outEdges list

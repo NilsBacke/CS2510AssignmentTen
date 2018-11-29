@@ -1,7 +1,9 @@
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Stack;
 
 import javalib.impworld.WorldScene;
@@ -14,7 +16,10 @@ public class Maze {
 
   // for solving algorithms
   HashMap<Integer, Edge> cameFromEdgeDFS;
+  HashMap<Integer, Edge> cameFromEdgeBFS;
   Stack<Vertex> workListDFS;
+  Queue<Vertex> workListBFS;
+  Vertex current;
 
   // constructs a new Maze object
   Maze(int width, int height) {
@@ -170,28 +175,81 @@ public class Maze {
     }
 
     workListDFS.push(vertices.get(0).get(0));
+    this.current = null;
   }
 
   void DFS() {
-    System.out.println("While");
     Vertex next = workListDFS.pop();
     if (next.posn.x == MazeWorld.WIDTH - 1 && next.posn.y == MazeWorld.HEIGHT - 1) {
       // reconstruct
       next.setVisited();
+      System.out.println("nextID: " + next.id);
+      this.current = vertices.get(MazeWorld.WIDTH - 1).get(MazeWorld.HEIGHT - 1);
     }
     else if (!next.visited) {
       next.setVisited();
       for (Edge e : next.outEdges) {
         if (!e.from.equals(next) && !e.from.visited) {
           workListDFS.push(e.from);
-          cameFromEdgeDFS.put(next.id, e);
+          cameFromEdgeDFS.put(e.from.id, e);
         }
         else if (!e.to.equals(next) && !e.to.visited) {
           workListDFS.push(e.to);
-          cameFromEdgeDFS.put(next.id, e);
+          cameFromEdgeDFS.put(e.to.id, e);
         }
       }
     }
+  }
+
+  void reconstructDFS() {
+    current.color = new Color(100, 100, 255);
+    current.onPath = true;
+    Edge e = this.cameFromEdgeDFS.get(current.id);
+    current = e.from;
+  }
+  
+  void BFSprep() {
+    cameFromEdgeBFS = new HashMap<Integer, Edge>();
+    workListBFS = new LinkedList<Vertex>();
+
+    for (ArrayList<Vertex> list : vertices) {
+      for (Vertex v : list) {
+        v.visited = false;
+      }
+    }
+
+    workListBFS.add(vertices.get(0).get(0));
+    this.current = null;
+  }
+
+  void BFS() {
+    Vertex next = workListBFS.poll();
+    if (next.posn.x == MazeWorld.WIDTH - 1 && next.posn.y == MazeWorld.HEIGHT - 1) {
+      // reconstruct
+      next.setVisited();
+      System.out.println("nextID: " + next.id);
+      this.current = vertices.get(MazeWorld.WIDTH - 1).get(MazeWorld.HEIGHT - 1);
+    }
+    else if (!next.visited) {
+      next.setVisited();
+      for (Edge e : next.outEdges) {
+        if (!e.from.equals(next) && !e.from.visited) {
+          workListBFS.add(e.from);
+          cameFromEdgeBFS.put(e.from.id, e);
+        }
+        else if (!e.to.equals(next) && !e.to.visited) {
+          workListBFS.add(e.to);
+          cameFromEdgeBFS.put(e.to.id, e);
+        }
+      }
+    }
+  }
+
+  void reconstructBFS() {
+    current.color = new Color(100, 100, 255);
+    current.onPath = true;
+    Edge e = this.cameFromEdgeBFS.get(current.id);
+    current = e.from;
   }
 
   // EFFECT: add all of the vertices' and edges' images to the given WorldScene
@@ -211,8 +269,24 @@ public class Maze {
     }
   }
   
+  void reset() {
+    for (ArrayList<Vertex> list : vertices) {
+      for (Vertex v : list) {
+        v.color = Color.GRAY;
+      }
+    }
+    vertices.get(0).get(0).color = Color.GREEN;
+    vertices.get(MazeWorld.WIDTH - 1).get(MazeWorld.HEIGHT - 1).color = Color.MAGENTA;
+  }
+  
+  // mark that the maze is completed
+  void setDone() {
+    this.current.color = new Color(100, 100, 255);
+    this.current.onPath = true;
+  }
+
   // returns true if this maze is solved
   boolean isSolved() {
-    return this.vertices.get(MazeWorld.WIDTH - 1).get(MazeWorld.HEIGHT - 1).visited;
+    return this.current != null && this.current.equals(this.vertices.get(0).get(0));
   }
 }

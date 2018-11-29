@@ -21,10 +21,13 @@ public class MazeWorld extends World {
   Maze maze;
   Player player;
 
+  String mode; // either "player", "dfs", or "bfs"
+
   // creates a new MazeWorld object
   MazeWorld() {
-    maze = new Maze(WIDTH, HEIGHT);
-    maze.DFSprep();
+    this.maze = new Maze(WIDTH, HEIGHT);
+    this.player = new Player(0, 0);
+    this.mode = "player";
   }
 
   // draws all of the elements of the maze
@@ -34,30 +37,71 @@ public class MazeWorld extends World {
     this.maze.render(scene, player); // also draws player
     return scene;
   }
-  
-  @Override 
+
+  @Override
   public void onTick() {
-    if (player != null) {
+    if (this.mode.equals("player")) {
       Vertex currentPlayerSquare = this.maze.vertices.get(player.posn.x).get(player.posn.y);
       currentPlayerSquare.color = new Color(50, 50, 170);
       currentPlayerSquare.visited = true;
-    } else {
-      if (maze.workListDFS.size() > 0) {
-        maze.DFS();
+    }
+    else if (this.mode.equals("dfs")) {
+      runDFS();
+      if (maze.current != null && maze.current.equals(maze.vertices.get(0).get(0))) {
+        this.maze.setDone();
       }
-      
+    } else if (this.mode.equals("bfs")) {
+      runBFS();
+      if (maze.current != null && maze.current.equals(maze.vertices.get(0).get(0))) {
+        this.maze.setDone();
+      }
+    }
+  }
+
+  void runDFS() {
+    if (maze.workListDFS.size() > 0 && maze.current == null) {
+      maze.DFS();
+    }
+    else if (maze.current != null && !maze.current.equals(maze.vertices.get(0).get(0))) {
+      maze.reconstructDFS();
+    }
+  }
+  
+  void runBFS() {
+    if (maze.workListBFS.size() > 0 && maze.current == null) {
+      maze.BFS();
+    }
+    else if (maze.current != null && !maze.current.equals(maze.vertices.get(0).get(0))) {
+      maze.reconstructBFS();
     }
   }
 
   // moves the Player when the player presses an arrow key
   public void onKeyEvent(String ke) {
     if (ke.equals("r")) {
-      maze = new Maze(WIDTH, HEIGHT);
-      player = new Player(0, 0);
-    } else if (ke.equals("p") && player == null) {
-      player = new Player(0, 0);
+      this.maze = new Maze(WIDTH, HEIGHT);
+      this.player = new Player(0, 0);
+      if (this.mode.equals("d")) {
+        this.maze.DFSprep();
+      } else if (this.mode.equals("b")) {
+        this.maze.BFSprep();
+      }
     }
-    else if (player != null) {
+    else if (ke.equals("p")) {
+      this.mode = "player";
+      this.maze.reset();
+    }
+    else if (ke.equals("d")) {
+      this.mode = "dfs";
+      this.maze.reset();
+      this.maze.DFSprep();
+    }
+    else if (ke.equals("b")) {
+      this.mode = "bfs";
+      this.maze.reset();
+      this.maze.BFSprep();
+    }
+    else {
       player.movePlayer(ke, this.maze.walls);
     }
   }
@@ -65,10 +109,11 @@ public class MazeWorld extends World {
   // trigger world end
   public WorldEnd worldEnds() {
     // check if user wins
-    if (player != null && player.completed()) {
+    if (player.completed()) {
       // user wins
       return new WorldEnd(true, this.lastScene("NICE JOB"));
-    } else if (maze.isSolved()) {
+    }
+    else if (maze.isSolved()) {
       return new WorldEnd(true, this.lastScene("NICE JOB"));
     }
     else {
