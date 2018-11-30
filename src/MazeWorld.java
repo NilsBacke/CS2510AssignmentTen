@@ -12,8 +12,8 @@ import tester.Tester;
 
 // represents the World class for the Maze game
 public class MazeWorld extends World {
-  static final int WIDTH = 25;
-  static final int HEIGHT = 25;
+  static final int WIDTH = 30;
+  static final int HEIGHT = 30;
 
   static final int WINDOW_WIDTH = WIDTH * Vertex.SIZE;
   static final int WINDOW_HEIGHT = HEIGHT * Vertex.SIZE;

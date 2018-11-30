@@ -5,7 +5,7 @@ import java.util.ArrayList;
 public class Vertex extends MazeSquare {
   int id;
   ArrayList<Edge> outEdges;
-  static final int SIZE = 20;
+  static final int SIZE = 25;
   boolean visited;
   boolean onPath;
 
