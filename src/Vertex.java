@@ -35,28 +35,27 @@ public class Vertex extends MazeSquare {
       this.outEdges.add(new Edge(this, vertices.get(i).get(j + 1)));
     }
   }
-  
+
+  // EFFECT: set the visited flag and color of this vertex
   void setVisited() {
     this.visited = true;
     this.color = new Color(50, 50, 170);
   }
-  
+
   // compares the two posns
-  @Override
   public boolean equals(Object o) {
     if (o instanceof Vertex) {
       return this.posn.equals(((Vertex) o).posn);
     }
     return false;
   }
-  
+
   // returns the unique ID
-  @Override
   public int hashCode() {
     return this.id;
   }
-  
-  @Override
+
+  // string representation of this vertex (the posn)
   public String toString() {
     return this.posn.toString();
   }
