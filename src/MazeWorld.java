@@ -8,12 +8,13 @@ import javalib.worldimages.Posn;
 import javalib.worldimages.RectangleImage;
 import javalib.worldimages.TextImage;
 import javalib.worldimages.WorldEnd;
+import javalib.worldimages.WorldImage;
 import tester.Tester;
 
 // represents the World class for the Maze game
 public class MazeWorld extends World {
-  static final int WIDTH = 30;
-  static final int HEIGHT = 30;
+  static final int WIDTH = 25;
+  static final int HEIGHT = 25;
 
   static final int WINDOW_WIDTH = WIDTH * Vertex.SIZE;
   static final int WINDOW_HEIGHT = HEIGHT * Vertex.SIZE;
@@ -31,14 +32,13 @@ public class MazeWorld extends World {
   }
 
   // draws all of the elements of the maze
-  @Override
   public WorldScene makeScene() {
     WorldScene scene = this.getEmptyScene();
     this.maze.render(scene, player); // also draws player
     return scene;
   }
 
-  @Override
+  // every game tick
   public void onTick() {
     if (this.mode.equals("player")) {
       Vertex currentPlayerSquare = this.maze.vertices.get(player.posn.x).get(player.posn.y);
@@ -50,7 +50,8 @@ public class MazeWorld extends World {
       if (maze.current != null && maze.current.equals(maze.vertices.get(0).get(0))) {
         this.maze.setDone();
       }
-    } else if (this.mode.equals("bfs")) {
+    }
+    else if (this.mode.equals("bfs")) {
       runBFS();
       if (maze.current != null && maze.current.equals(maze.vertices.get(0).get(0))) {
         this.maze.setDone();
@@ -58,18 +59,20 @@ public class MazeWorld extends World {
     }
   }
 
+  // run a depth first search for the goal
   void runDFS() {
     if (maze.workListDFS.size() > 0 && maze.current == null) {
-      maze.DFS();
+      maze.dFS();
     }
     else if (maze.current != null && !maze.current.equals(maze.vertices.get(0).get(0))) {
       maze.reconstructDFS();
     }
   }
-  
+
+  // run a breadth first search for the goal
   void runBFS() {
     if (maze.workListBFS.size() > 0 && maze.current == null) {
-      maze.BFS();
+      maze.bFS();
     }
     else if (maze.current != null && !maze.current.equals(maze.vertices.get(0).get(0))) {
       maze.reconstructBFS();
@@ -79,12 +82,14 @@ public class MazeWorld extends World {
   // moves the Player when the player presses an arrow key
   public void onKeyEvent(String ke) {
     if (ke.equals("r")) {
+      this.mode = "player";
       this.maze = new Maze(WIDTH, HEIGHT);
       this.player = new Player(0, 0);
       if (this.mode.equals("d")) {
-        this.maze.DFSprep();
-      } else if (this.mode.equals("b")) {
-        this.maze.BFSprep();
+        this.maze.dFSprep();
+      }
+      else if (this.mode.equals("b")) {
+        this.maze.bFSprep();
       }
     }
     else if (ke.equals("p")) {
@@ -94,12 +99,12 @@ public class MazeWorld extends World {
     else if (ke.equals("d")) {
       this.mode = "dfs";
       this.maze.reset();
-      this.maze.DFSprep();
+      this.maze.dFSprep();
     }
     else if (ke.equals("b")) {
       this.mode = "bfs";
       this.maze.reset();
-      this.maze.BFSprep();
+      this.maze.bFSprep();
     }
     else {
       player.movePlayer(ke, this.maze.walls);
@@ -130,6 +135,18 @@ public class MazeWorld extends World {
     scene.placeImageXY(new TextImage(s, Color.red), WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
     return scene;
   }
+
+  WorldImage getInstructionsImage1() {
+    return new TextImage(
+        "Press b for breadth first search      " + "Press d for depth first search   ",
+        Color.BLACK);
+  }
+
+  WorldImage getInstructionsImage2() {
+    return new TextImage(
+        "Press p to solve the maze yourself       " + "Press r to generate a new maze",
+        Color.BLACK);
+  }
 }
 
 // the tests for the MazeWorld game
@@ -140,6 +157,7 @@ class ExamplesMaze {
   HashMap<Integer, Integer> reps;
   HashMap<Integer, Integer> reps2;
 
+  // reset test conditions
   void reset() {
     reps = new HashMap<>();
     int counter = 0;
@@ -159,6 +177,7 @@ class ExamplesMaze {
     }
   }
 
+  // test getFinalEdges
   void testGetFinalEdges(Tester t) {
     ArrayList<ArrayList<Vertex>> vertices = new ArrayList<ArrayList<Vertex>>();
     ArrayList<Edge> empty = new ArrayList<Edge>();
@@ -192,6 +211,7 @@ class ExamplesMaze {
     t.checkExpect(maze.getFinalEdges(empty, vertices), empty);
   }
 
+  // test containedInOutEdges
   void testContainedInOutEdges(Tester t) {
     ArrayList<ArrayList<Vertex>> vertices = new ArrayList<ArrayList<Vertex>>();
     for (int i = 0; i < 10; i++) {
@@ -216,6 +236,7 @@ class ExamplesMaze {
         new Edge(vertices.get(0).get(0), vertices.get(0).get(0), 5), vertices), true);
   }
 
+  // test numTrees
   void testNumTrees(Tester t) {
     reset();
     t.checkExpect(maze.numTrees(reps), 100);
@@ -223,12 +244,14 @@ class ExamplesMaze {
     t.checkExpect(maze.numTrees(reps2), 0);
   }
 
+  // test find
   void testFind(Tester t) {
     reset();
     t.checkExpect(maze.find(reps, 0), 0);
     t.checkExpect(maze.find(reps, 50), 50);
   }
 
+  // test union
   void testUnion(Tester t) {
     reset();
     maze.union(reps, 0, 0);
@@ -238,6 +261,7 @@ class ExamplesMaze {
     t.checkExpect(reps.get(0), 50);
   }
 
+  // test sortEdges
   void testSortEdges(Tester t) {
     ArrayList<Edge> edges1 = new ArrayList<Edge>();
     for (int i = 0; i < 10; i++) {
@@ -251,16 +275,19 @@ class ExamplesMaze {
     t.checkExpect(edges1.get(edges1.size() - 1).weight, 9);
   }
 
+  // test getVerticalLine
   void testGetVerticalLine(Tester t) {
     Edge e = new Edge();
     t.checkExpect(e.getVerticalLine(), new LineImage(new Posn(0, Vertex.SIZE), Color.BLACK));
   }
 
+  // test getHorizontalLine
   void testGetHorizontalLine(Tester t) {
     Edge e = new Edge();
     t.checkExpect(e.getHorizontalLine(), new LineImage(new Posn(Vertex.SIZE, 0), Color.BLACK));
   }
 
+  // testEdgeEquals
   void testEdgeEquals(Tester t) {
     Vertex v1 = new Vertex(0, 0, 0);
     Vertex v2 = new Vertex(0, 1, 1);
@@ -277,7 +304,8 @@ class ExamplesMaze {
     t.checkExpect(e4.equals(e4), true);
   }
 
-  void testAddEdge(Tester t) {
+  // test addEdges
+  void testAddEdges(Tester t) {
     ArrayList<ArrayList<Vertex>> vertices = new ArrayList<ArrayList<Vertex>>();
     for (int i = 0; i < 10; i++) {
       ArrayList<Vertex> sublist = new ArrayList<Vertex>();
@@ -298,9 +326,10 @@ class ExamplesMaze {
     t.checkExpect(vertices.get(5).get(5).outEdges.size(), 4);
   }
 
+  // run the game
   public static void main(String[] argv) {
     // run the game
     MazeWorld w = new MazeWorld();
-    w.bigBang(MazeWorld.WINDOW_WIDTH, MazeWorld.WINDOW_HEIGHT, 0.025);
+    w.bigBang(MazeWorld.WINDOW_WIDTH, MazeWorld.WINDOW_HEIGHT + Vertex.SIZE * 2, 0.05);
   }
 }

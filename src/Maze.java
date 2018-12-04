@@ -164,7 +164,8 @@ public class Maze {
     }
   }
 
-  void DFSprep() {
+  // EFFECT: reset class members for a DFS
+  void dFSprep() {
     cameFromEdgeDFS = new HashMap<Integer, Edge>();
     workListDFS = new Stack<Vertex>();
 
@@ -178,7 +179,8 @@ public class Maze {
     this.current = null;
   }
 
-  void DFS() {
+  // perfor a depth first search for the goal
+  void dFS() {
     Vertex next = workListDFS.pop();
     if (next.posn.x == MazeWorld.WIDTH - 1 && next.posn.y == MazeWorld.HEIGHT - 1) {
       // reconstruct
@@ -201,14 +203,16 @@ public class Maze {
     }
   }
 
+  // reconstruct for a depth first search
   void reconstructDFS() {
     current.color = new Color(100, 100, 255);
     current.onPath = true;
     Edge e = this.cameFromEdgeDFS.get(current.id);
     current = e.from;
   }
-  
-  void BFSprep() {
+
+  // EFFECT: reset class members for a BFS
+  void bFSprep() {
     cameFromEdgeBFS = new HashMap<Integer, Edge>();
     workListBFS = new LinkedList<Vertex>();
 
@@ -222,7 +226,8 @@ public class Maze {
     this.current = null;
   }
 
-  void BFS() {
+  // do a breadth first search for the goal
+  void bFS() {
     Vertex next = workListBFS.poll();
     if (next.posn.x == MazeWorld.WIDTH - 1 && next.posn.y == MazeWorld.HEIGHT - 1) {
       // reconstruct
@@ -245,6 +250,7 @@ public class Maze {
     }
   }
 
+  // reconstruct for a breadth first search
   void reconstructBFS() {
     current.color = new Color(100, 100, 255);
     current.onPath = true;
@@ -268,7 +274,8 @@ public class Maze {
       e.addToScene(scene);
     }
   }
-  
+
+  // reset the maze tile colors
   void reset() {
     for (ArrayList<Vertex> list : vertices) {
       for (Vertex v : list) {
@@ -278,7 +285,7 @@ public class Maze {
     vertices.get(0).get(0).color = Color.GREEN;
     vertices.get(MazeWorld.WIDTH - 1).get(MazeWorld.HEIGHT - 1).color = Color.MAGENTA;
   }
-  
+
   // mark that the maze is completed
   void setDone() {
     this.current.color = new Color(100, 100, 255);

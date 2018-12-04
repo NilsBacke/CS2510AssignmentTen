@@ -24,7 +24,7 @@ public class Player extends MazeSquare {
       moveLeft(walls);
     }
   }
-  
+
   // returns true if the player has completed the maze
   boolean completed() {
     return this.posn.x == MazeWorld.WIDTH - 1 && this.posn.y == MazeWorld.HEIGHT - 1;
