@@ -1,6 +1,7 @@
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 import javalib.impworld.World;
 import javalib.impworld.WorldScene;
 import javalib.worldimages.LineImage;
@@ -82,19 +83,15 @@ public class MazeWorld extends World {
   // moves the Player when the player presses an arrow key
   public void onKeyEvent(String ke) {
     if (ke.equals("r")) {
-      this.mode = "player";
       this.maze = new Maze(WIDTH, HEIGHT);
       this.player = new Player(0, 0);
-      if (this.mode.equals("d")) {
-        this.maze.dFSprep();
-      }
-      else if (this.mode.equals("b")) {
-        this.maze.bFSprep();
-      }
+      this.maze.dFSprep();
+      this.maze.bFSprep();
     }
     else if (ke.equals("p")) {
       this.mode = "player";
       this.maze.reset();
+      this.player = new Player(0, 0);
     }
     else if (ke.equals("d")) {
       this.mode = "dfs";
@@ -159,6 +156,11 @@ class ExamplesMaze {
 
   // reset test conditions
   void reset() {
+    world = new MazeWorld();
+    world.maze = new Maze(MazeWorld.WIDTH, MazeWorld.HEIGHT, new Random(5));
+
+    maze = new Maze(10, 10);
+
     reps = new HashMap<>();
     int counter = 0;
     for (int i = 0; i < 10; i++) {
@@ -167,6 +169,7 @@ class ExamplesMaze {
         counter++;
       }
     }
+
     reps2 = new HashMap<>();
     int counter2 = 0;
     for (int i = 0; i < 10; i++) {
@@ -324,6 +327,116 @@ class ExamplesMaze {
     t.checkExpect(vertices.get(5).get(5).outEdges.size(), 0);
     vertices.get(5).get(5).addEdges(vertices);
     t.checkExpect(vertices.get(5).get(5).outEdges.size(), 4);
+  }
+
+  // test onKeyEvent
+  void testOnKeyEvent(Tester t) {
+    // player mode tests
+    reset();
+    t.checkExpect(world.mode, "player");
+
+    Maze oldMaze = world.maze;
+    world.onKeyEvent("r");
+    t.checkExpect(world.mode, "player");
+    t.checkFail(world.maze, oldMaze);
+
+    // movement
+    reset();
+    t.checkExpect(world.player.posn, new Posn(0, 0));
+
+    world.onKeyEvent("up");
+    t.checkExpect(world.player.posn, new Posn(0, 0));
+
+    world.onKeyEvent("left");
+    t.checkExpect(world.player.posn, new Posn(0, 0));
+
+    world.onKeyEvent("down");
+    t.checkExpect(world.player.posn, new Posn(0, 1));
+
+    world.onKeyEvent("right");
+    t.checkExpect(world.player.posn, new Posn(1, 1));
+
+    world.onKeyEvent("up");
+    t.checkExpect(world.player.posn, new Posn(1, 0));
+
+    world.onKeyEvent("right");
+    t.checkExpect(world.player.posn, new Posn(1, 0));
+
+    // dfs mode tests
+    reset();
+    t.checkExpect(world.mode, "player");
+
+    world.onKeyEvent("d");
+    t.checkExpect(world.mode, "dfs");
+
+    oldMaze = world.maze;
+    world.onKeyEvent("r");
+    t.checkExpect(world.mode, "dfs");
+    t.checkFail(world.maze, oldMaze);
+
+    // bfs mode tests
+    reset();
+    t.checkExpect(world.mode, "player");
+
+    world.onKeyEvent("b");
+    t.checkExpect(world.mode, "bfs");
+
+    oldMaze = world.maze;
+    world.onKeyEvent("r");
+    t.checkExpect(world.mode, "bfs");
+    t.checkFail(world.maze, oldMaze);
+
+    // invalid input
+    reset();
+    t.checkExpect(world.mode, "player");
+    t.checkExpect(world.player.posn, new Posn(0, 0));
+
+    world.onKeyEvent("a");
+    world.onKeyEvent("c");
+    world.onKeyEvent("!");
+    world.onKeyEvent("m");
+
+    t.checkExpect(world.mode, "player");
+    t.checkExpect(world.player.posn, new Posn(0, 0));
+
+    reset();
+  }
+
+  // test movePlayer
+  void testMovePlayer(Tester t) {
+    reset();
+    t.checkExpect(world.player.posn, new Posn(0, 0));
+
+    world.player.movePlayer("up", world.maze.walls);
+    t.checkExpect(world.player.posn, new Posn(0, 0));
+
+    world.player.movePlayer("left", world.maze.walls);
+    t.checkExpect(world.player.posn, new Posn(0, 0));
+
+    world.player.movePlayer("down", world.maze.walls);
+    t.checkExpect(world.player.posn, new Posn(0, 1));
+
+    world.player.movePlayer("right", world.maze.walls);
+    t.checkExpect(world.player.posn, new Posn(1, 1));
+
+    world.player.movePlayer("up", world.maze.walls);
+    t.checkExpect(world.player.posn, new Posn(1, 0));
+
+    world.player.movePlayer("right", world.maze.walls);
+    t.checkExpect(world.player.posn, new Posn(1, 0));
+
+    // invalid input
+    reset();
+    t.checkExpect(world.player.posn, new Posn(0, 0));
+
+    world.player.movePlayer("a", world.maze.walls);
+    world.player.movePlayer("c", world.maze.walls);
+    world.player.movePlayer("!", world.maze.walls);
+    world.player.movePlayer("m", world.maze.walls);
+
+    t.checkExpect(world.player.posn, new Posn(0, 0));
+
+    reset();
   }
 
   // run the game

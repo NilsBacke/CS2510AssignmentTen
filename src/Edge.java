@@ -20,6 +20,13 @@ public class Edge {
     this.weight = rand.nextInt(MazeWorld.HEIGHT * MazeWorld.WIDTH * 25);
   }
 
+  // creates a new Edge object with a random weight based on a Random object
+  Edge(Vertex from, Vertex to, Random rand) {
+    this.from = from;
+    this.to = to;
+    this.weight = rand.nextInt(MazeWorld.HEIGHT * MazeWorld.WIDTH * 25);
+  }
+
   // creates a new Edge object with a given weight
   Edge(Vertex from, Vertex to, int weight) {
     this.from = from;

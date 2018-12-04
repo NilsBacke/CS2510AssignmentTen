@@ -1,5 +1,6 @@
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.Random;
 
 // represents a block in the maze
 public class Vertex extends MazeSquare {
@@ -20,19 +21,24 @@ public class Vertex extends MazeSquare {
 
   // EFFECT: all of the appropriate edges to the outEdges list
   void addEdges(ArrayList<ArrayList<Vertex>> vertices) {
+    addEdges(vertices, new Random());
+  }
+
+  // EFFECT: all of the appropriate edges to the outEdges list with a given Random object
+  void addEdges(ArrayList<ArrayList<Vertex>> vertices, Random rand) {
     int i = this.posn.x;
     int j = this.posn.y;
     if (i != 0) {
-      this.outEdges.add(new Edge(this, vertices.get(i - 1).get(j)));
+      this.outEdges.add(new Edge(this, vertices.get(i - 1).get(j), rand));
     }
     if (i != vertices.size() - 1) {
-      this.outEdges.add(new Edge(this, vertices.get(i + 1).get(j)));
+      this.outEdges.add(new Edge(this, vertices.get(i + 1).get(j), rand));
     }
     if (j != 0) {
-      this.outEdges.add(new Edge(this, vertices.get(i).get(j - 1)));
+      this.outEdges.add(new Edge(this, vertices.get(i).get(j - 1), rand));
     }
     if (j != vertices.get(0).size() - 1) {
-      this.outEdges.add(new Edge(this, vertices.get(i).get(j + 1)));
+      this.outEdges.add(new Edge(this, vertices.get(i).get(j + 1), rand));
     }
   }
 

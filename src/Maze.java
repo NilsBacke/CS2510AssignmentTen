@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Stack;
+import java.util.Random;
 
 import javalib.impworld.WorldScene;
 
@@ -23,6 +24,11 @@ public class Maze {
 
   // constructs a new Maze object
   Maze(int width, int height) {
+    this(width, height, new Random());
+  }
+
+  // constructs a new Maze object with a given Random object
+  Maze(int width, int height, Random rand) {
     vertices = new ArrayList<ArrayList<Vertex>>();
     int counter = 0;
 
@@ -44,7 +50,7 @@ public class Maze {
     edges = new ArrayList<Edge>();
     for (int i = 0; i < width; i++) {
       for (int j = 0; j < height; j++) {
-        vertices.get(i).get(j).addEdges(vertices);
+        vertices.get(i).get(j).addEdges(vertices, rand);
         edges.addAll(vertices.get(i).get(j).outEdges);
       }
     }
